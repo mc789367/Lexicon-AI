@@ -2,13 +2,26 @@
 
 ## What was done
 
-- Reviewed the repo. The only existing file is `CLAUDE.md`. There is no application code, virtual environment, dependency file, or tests.
-- Read `CLAUDE.md`. It points at the Karpathy behavioral guidelines: state assumptions, keep the solution minimal, change only what the task needs, and define checks that can be verified.
-- Wrote this handoff. The game is not implemented yet.
+- Implemented the word guessing game and its tests.
+- Added username/email/password registration and username/password login backed by MongoDB Atlas.
+- Passwords are stored as PBKDF2 hashes with per-user random salts.
+- The game is available only after login; the app displays the logged-in username and provides logout.
 
 ## What this feature is
 
-A single-player word guessing game in a Python Streamlit app, close to Hangman. One hidden English word, letter guesses, six wrong attempts. No accounts, saved scores, database, difficulty levels, or multiplayer.
+A single-player word guessing game in a Python Streamlit app, close to Hangman. One hidden English word, letter guesses, six wrong attempts. Accounts are stored in MongoDB Atlas; saved scores, difficulty levels, and multiplayer are not included.
+
+## MongoDB setup
+
+Add a `.streamlit/secrets.toml` file locally (it is git-ignored):
+
+```toml
+[mongo]
+uri = "mongodb+srv://..."
+database = "language_learning"
+```
+
+The app creates unique indexes for usernames and email addresses. Never commit the secrets file or put credentials in source code.
 
 ## Game behavior
 
@@ -33,9 +46,11 @@ A single-player word guessing game in a Python Streamlit app, close to Hangman. 
 ## Suggested layout
 
 - `game.py` — word selection, guesses, win, and loss
-- `app.py` — Streamlit UI
+- `auth.py` — password hashing, registration, and credential verification
+- `app.py` — Streamlit UI and login/session handling
 - `tests/test_game.py` — pytest for the rules above
-- `requirements.txt` — `streamlit` and `pytest`
+- `tests/test_auth.py` — pytest for account behavior
+- `requirements.txt` — Streamlit, PyMongo, and pytest
 - A local virtual environment for those packages
 
 ## Checks the implementation should pass
@@ -46,7 +61,9 @@ A single-player word guessing game in a Python Streamlit app, close to Hangman. 
 - Repeat guesses and invalid input leave state unchanged and explain why.
 - Win and loss stop further guesses.
 - Restart replaces the word and clears guesses and attempts.
+- Registration hashes the password, rejects duplicates, and allows successful login.
+- Failed login is rejected; logged-out users cannot access the game.
 
 ## Out of scope
 
-User authentication, persistent scores, MongoDB, difficulty levels, and multiplayer.
+Persistent scores, difficulty levels, and multiplayer.
